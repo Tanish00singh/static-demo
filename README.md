@@ -303,16 +303,173 @@ git push origin main
 
 ➡️ Amplify auto rebuilds + redeploys
 
----
-
-# 🌐 7. Add Custom Domain (Optional)
-
-### Step-by-step:
-
-1. Open Amplify app dashboard
-2. Click **Domain management**
-3. Click **Add domain**
-4. Enter domain (e.g. `yourdomain.com`)
-5. Click **Configure domain**
+Good — now that nginx is installable, here’s the **final clean sequence from connect → live website using GitHub**. No fluff, just the exact flow.
 
 ---
+
+# 🚀 FULL DEPLOYMENT (EC2 + Nginx + GitHub)
+
+## 🔹 0. Connect
+
+EC2 → Instance → **Connect → EC2 Instance Connect → Connect**
+
+---
+
+# ⚙️ 1. Fix repos (your case — already done, keep it here for completeness)
+
+```bash
+sudo add-apt-repository main
+sudo add-apt-repository universe
+sudo add-apt-repository restricted
+sudo add-apt-repository multiverse
+
+sudo rm -rf /var/lib/apt/lists/*
+sudo apt clean
+sudo apt update
+```
+
+---
+
+# ⚙️ 2. Install required software
+
+```bash
+sudo apt install nginx git -y
+```
+
+---
+
+# ⚙️ 3. Start Nginx
+
+```bash
+sudo systemctl start nginx
+sudo systemctl enable nginx
+```
+
+👉 Quick check:
+
+```bash
+sudo systemctl status nginx
+```
+
+You want: **active (running)**
+
+---
+
+# ⚙️ 4. Go to web root
+
+```bash
+cd /var/www
+```
+
+---
+
+# ⚙️ 5. Remove default site
+
+```bash
+sudo rm -rf html
+```
+
+---
+
+# ⚙️ 6. Clone your GitHub repo
+
+```bash
+sudo git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git html
+```
+
+---
+
+# ⚙️ 7. Fix permissions (don’t skip)
+
+```bash
+sudo chown -R www-data:www-data /var/www/html
+sudo chmod -R 755 /var/www/html
+```
+
+---
+
+# ⚙️ 8. Restart Nginx
+
+```bash
+sudo systemctl restart nginx
+```
+
+---
+
+# 🌍 9. Open your website
+
+In browser:
+
+```
+http://YOUR_PUBLIC_IP
+```
+
+---
+
+# ⚠️ REAL-WORLD CHECKS (if something fails)
+
+## ❌ Site not opening
+
+* Security Group → **Port 80 (HTTP) must be allowed**
+
+---
+
+## ❌ Default page showing
+
+```bash
+sudo rm -rf /var/www/html/*
+sudo git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git /var/www/html
+```
+
+---
+
+## ❌ Repo structure wrong
+
+Your repo must look like:
+
+```
+index.html   ✅
+style.css
+```
+
+NOT:
+
+```
+frontend/index.html ❌
+```
+
+Fix:
+
+```bash
+sudo mv /var/www/html/frontend/* /var/www/html/
+```
+
+---
+
+## ❌ Updates not showing
+
+```bash
+cd /var/www/html
+sudo git pull
+sudo systemctl restart nginx
+```
+
+---
+
+# 🧠 FINAL UNDERSTANDING
+
+* EC2 = server
+* Nginx = serves your files
+* GitHub = your code source
+* Public IP = your website URL
+
+---
+
+If you want next step:
+
+* 🔒 HTTPS (SSL)
+* 🌐 Custom domain
+* ⚡ Auto deploy on push (CI/CD)
+
+Say what you want — I’ll take you there.
+

@@ -137,98 +137,182 @@ You’ll see:
 http://YOUR-BUCKET-NAME.s3-website-REGION.amazonaws.com
 ```
 
-👉 Open it in browser — your site is LIVE.
+Here’s a **clean, click-by-click guide** to deploy a **static website using AWS Amplify Hosting (latest UI ~2025+)** — from GitHub → live URL → CI/CD.
 
 ---
 
-# ⚠️ COMMON MISTAKES (THIS IS WHERE PEOPLE FAIL)
+# 🚀 1. Prerequisites (Do this first)
 
-### ❌ 1. 403 Forbidden Error
-
-Cause:
-
-* Block public access still ON
-* Bucket policy missing or wrong
-
-Fix:
-
-* Disable block public access
-* Check policy ARN matches bucket name EXACTLY
+* AWS account (logged in)
+* GitHub repo with your website
+  (HTML/CSS/JS or React, etc.)
 
 ---
 
-### ❌ 2. AccessDenied XML Page
+# 🔗 2. Connect GitHub Repository (Click-by-click)
 
-Cause:
+### Step 1: Open Amplify
 
-* Missing `index.html`
+1. Go to **AWS Console**
+2. Search → **Amplify**
+3. Click **AWS Amplify**
+4. Click **“Create new app”**
+5. Click **“Host web app”**
 
-Fix:
+---
 
-* Ensure file name is EXACT:
+### Step 2: Choose GitHub
+
+1. Select **GitHub**
+2. Click **Next**
+3. Click **Authorize GitHub**
+4. Grant permissions (important!)
+
+👉 If repo not visible → permission issue (fix later)
+
+---
+
+### Step 3: Select Repository
+
+1. Choose your **Repository**
+2. Choose **Branch** (usually `main`)
+3. Click **Next**
+
+📌 Amplify directly connects repo + branch for deployment ([AWS Documentation][1])
+
+---
+
+# ⚙️ 3. Configure Build Settings
+
+### Auto Detection (Default)
+
+* Amplify auto-detects framework (React, Vue, HTML)
+* Generates `amplify.yml`
+
+👉 Works for:
+
+* Static HTML → no config needed
+* React → auto build detected ([Medium][2])
+
+---
+
+## ✨ Sample Build Settings
+
+### 🟢 Static HTML (NO build needed)
+
+```yaml
+version: 1
+frontend:
+  phases:
+    build:
+      commands: []
+  artifacts:
+    baseDirectory: /
+    files:
+      - '**/*'
+```
+
+---
+
+### ⚛️ React (Vite / CRA)
+
+```yaml
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm install
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: dist   # or build
+    files:
+      - '**/*'
+```
+
+---
+
+### Step 4: Continue
+
+1. Click **Next**
+2. Review settings
+3. Click **Save and deploy**
+
+---
+
+# 🚀 4. Deploy Website (Automatic)
+
+Now Amplify will:
+
+* Install dependencies
+* Build your app
+* Deploy to CDN
+
+👉 Takes ~2–5 minutes ([AWS Documentation][1])
+
+You’ll see:
+
+* Build logs
+* Deployment status: **Provisioning → Building → Deploying → Live**
+
+---
+
+# 🌍 5. Access Live URL
+
+After deployment:
+
+1. Go to **Amplify Dashboard**
+2. Click your app
+3. Click **“Visit deployed URL”**
+
+You’ll get:
 
 ```
-index.html
+https://main.xxxxxx.amplifyapp.com
 ```
 
-(not Index.html, not index.htm)
+👉 Your site is now LIVE globally (CDN hosted) ([AWS Documentation][1])
 
 ---
 
-### ❌ 3. CSS/JS Not Loading
+# 🔁 6. CI/CD (Automatic Deploy Explained)
 
-Cause:
+This is the best part.
 
-* Wrong file paths
+### How it works:
 
-Fix:
-Use relative paths:
+1. You push code → GitHub
+2. Amplify detects change
+3. Automatically:
 
-```html
-<link rel="stylesheet" href="style.css">
+   * Pulls code
+   * Builds app
+   * Deploys new version
+
+👉 No manual steps needed ([Medium][2])
+
+### Example:
+
+```bash
+git add .
+git commit -m "update UI"
+git push origin main
 ```
 
----
-
-### ❌ 4. Bucket Name Mistake
-
-Cause:
-
-* Uppercase / spaces
-
-Fix:
-Use:
-
-```
-tanish-site-2026
-```
+➡️ Amplify auto rebuilds + redeploys
 
 ---
 
-# 💡 PRO TIP (IMPORTANT)
+# 🌐 7. Add Custom Domain (Optional)
 
-S3 static hosting:
+### Step-by-step:
 
-* ❌ No backend (Node.js, PHP won’t work)
-* ✅ Only HTML, CSS, JS
-
-If you need backend → use:
-
-* EC2
-* Elastic Beanstalk
-* or API Gateway + Lambda
+1. Open Amplify app dashboard
+2. Click **Domain management**
+3. Click **Add domain**
+4. Enter domain (e.g. `yourdomain.com`)
+5. Click **Configure domain**
 
 ---
-
-# ✅ FINAL RESULT
-
-You now have:
-
-* Public static website
-* Hosted globally via AWS S3
-* Accessible via URL
-
----
-
-If you want next level:
-👉 I can show you how to connect this with **CloudFront + custom domain + HTTPS (production setup)**.
